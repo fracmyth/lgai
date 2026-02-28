@@ -19,8 +19,6 @@ TARGET_SIZE = 5
 BATCH_SIZE = 5
 SLEEP_SECONDS = 15
 
-dataset = []
-
 def clean_json(text):
     text = re.sub(r"```json|```", "", text).strip()
     return text
@@ -50,13 +48,27 @@ def generate_batch():
     text = clean_json(response.text)
     return json.loads(text)
 
-while len(dataset) < TARGET_SIZE:
+current_count = 0
+if os.path.exists("dataset.jsonl"):
+    with open("dataset.jsonl", "r", encoding="utf-8") as f:
+        current_count = sum(1 for _ in f)
+
+print(f"현재 저장된 데이터: {current_count}")
+
+while current_count < TARGET_SIZE:
     try:
         batch = generate_batch()
 
         if isinstance(batch, list):
-            dataset.extend(batch)
-            print(f"{len(dataset)} / {TARGET_SIZE}")
+            with open("dataset.jsonl", "a", encoding="utf-8") as f:
+                for item in batch:
+                    if current_count >= TARGET_SIZE:
+                        break
+                    f.write(json.dumps(item, ensure_ascii=False) + "\n")
+                    current_count += 1
+
+            print(f"{current_count} / {TARGET_SIZE} 저장 완료")
+
         else:
             print("배열 아님, 재시도")
 
@@ -66,10 +78,4 @@ while len(dataset) < TARGET_SIZE:
         print("재시도:", e)
         time.sleep(SLEEP_SECONDS)
 
-dataset = dataset[:TARGET_SIZE]
-
-with open("dataset.jsonl", "a", encoding="utf-8") as f:
-    for item in dataset:
-        f.write(json.dumps(item, ensure_ascii=False) + "\n")
-
-print("완료! dataset.jsonl 생성됨.")
+print("완료! dataset.jsonl 생성 완료.")
