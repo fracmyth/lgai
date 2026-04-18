@@ -72,11 +72,11 @@ ALL_COMBOS = [
 # =============================
 # CONFIG
 # =============================
-TARGET_SIZE = 4000
+TARGET_SIZE = 209
 OUTPUT_FILE = "dataset.jsonl"
 REJECT_FILE = "rejects.jsonl"
 MAX_RETRIES_PER_ITEM = 4
-SLEEP_SECONDS = 2
+SLEEP_SECONDS = 1
 USE_JUDGE = True
 
 GENERATION_CONFIG = {
